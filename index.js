@@ -16,9 +16,15 @@ const bot = new TelegramBot(token, {polling: true});
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const phoneNumber = msg.text;
-
-  
   try {
+    if (chatId !== parseInt(process.env.CHAT_ID)){
+      throw Error("I am a bot created only for my master");
+    }
+
+    if (isNaN(phoneNumber) || phoneNumber.startsWith('0')){
+      throw Error("Please type only the numbers, without zero at the start");
+    }
+
     const truecallerResponse = await getTruecallerInfo(phoneNumber);
     
     const name = truecallerResponse.name;
@@ -29,7 +35,7 @@ bot.on('message', async (msg) => {
 
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
   } catch (error) {
-    bot.sendMessage(chatId, `Error fetching Truecaller info: ${error.message}`);
+    bot.sendMessage(chatId, error.message);
   }
 });
 
